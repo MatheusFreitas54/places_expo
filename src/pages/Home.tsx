@@ -1,11 +1,18 @@
 import React from 'react'
 import { Alert, View, StyleSheet } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
 
-import MapView from 'react-native-maps'
+import MapView, { LongPressEvent } from 'react-native-maps'
 import * as Location from 'expo-location'
 
 export default function HomePage() {
+
+    const navigation = useNavigation<NavigationProp<any>>()
+
+    React.useEffect(() => {
+        navigation.setOptions({ headerShown: false })
+    }, [])
 
     const [location, setLocation] = React.useState<Location.LocationObject>()
     
@@ -23,7 +30,10 @@ export default function HomePage() {
         getCurrentLocation()
     }, [])
 
-    console.log('Coords: ', location)
+    function goToPlacePage(event: LongPressEvent) {
+        const coords = event.nativeEvent.coordinate
+        navigation.navigate('Place', coords)
+    }
 
     return (
         <View style={styles.container}>
@@ -35,6 +45,7 @@ export default function HomePage() {
                     center: location.coords,
                     heading: 0, pitch: 0, zoom: 15
                 }}
+                onLongPress={goToPlacePage}
             />
         </View>
     )
