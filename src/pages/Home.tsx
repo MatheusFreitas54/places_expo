@@ -2,9 +2,11 @@ import React from 'react'
 import { Alert, View, StyleSheet } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
-
-import MapView, { LongPressEvent } from 'react-native-maps'
+import MapView, { LongPressEvent, Marker } from 'react-native-maps'
 import * as Location from 'expo-location'
+
+import { Place } from '../models/place.model'
+import placeRepo from '../services/place.service'
 
 export default function HomePage() {
 
@@ -15,6 +17,7 @@ export default function HomePage() {
     }, [])
 
     const [location, setLocation] = React.useState<Location.LocationObject>()
+    const [places, setPlaces] = React.useState<Place[]>([])
     
     async function getCurrentLocation() {
         let { status } = await Location.requestForegroundPermissionsAsync()
@@ -25,9 +28,14 @@ export default function HomePage() {
 
         setLocation(await Location.getCurrentPositionAsync({}))
     }
+
+    async function fetchPlaces() {
+        setPlaces(await placeRepo.getList())
+    }
     
     React.useEffect(() => {
         getCurrentLocation()
+        fetchPlaces()
     }, [])
 
     function goToPlacePage(event: LongPressEvent) {
@@ -41,12 +49,21 @@ export default function HomePage() {
             <MapView
                 style={styles.map}
                 showsUserLocation={true}
+                zoomControlEnabled={true}
                 initialCamera={location && {
                     center: location.coords,
                     heading: 0, pitch: 0, zoom: 15
                 }}
                 onLongPress={goToPlacePage}
-            />
+            >
+                { places.map(e => (
+                    <Marker
+                        key={e.name}
+                        title={e.name}
+                        coordinate={{ latitude: e.latitude, longitude: e.longitude }}
+                    />
+                )) }
+            </MapView>
         </View>
     )
 }
