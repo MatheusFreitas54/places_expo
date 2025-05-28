@@ -1,3 +1,4 @@
+import React from "react"
 import { useNavigation, useRoute } from "@react-navigation/native"
 import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native"
 import { LatLng } from "react-native-maps"
@@ -10,10 +11,10 @@ export default function PlacePage() {
     const navigate = useNavigation()
     const route = useRoute()
 
-    let coords = route.params as LatLng
+    let coords = route.params as Place
 
-    let name = ''
-    let description = ''
+    const [name, setName] = React.useState(coords.name ? coords.name : '')
+    const [description, setDescription] = React.useState(coords.description ? coords.description : '')
 
     function save() {
         if (!name || name === '') {
@@ -45,7 +46,8 @@ export default function PlacePage() {
                 <TextInput
                     style={styles.input}
                     placeholder="Nome"
-                    onChangeText={value => name = value}
+                    value={name}
+                    onChangeText={setName}
                 />
             </View>
 
@@ -54,7 +56,8 @@ export default function PlacePage() {
                     style={styles.inputDesc}
                     multiline numberOfLines={10}
                     placeholder="Descrição"
-                    onChangeText={value => description = value}    
+                    value={description}
+                    onChangeText={setDescription}
                 />
             </View>
 

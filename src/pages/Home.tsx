@@ -1,7 +1,7 @@
 import React from 'react'
 import { Alert, View, StyleSheet } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native'
 import MapView, { LongPressEvent, Marker } from 'react-native-maps'
 import * as Location from 'expo-location'
 
@@ -35,12 +35,18 @@ export default function HomePage() {
     
     React.useEffect(() => {
         getCurrentLocation()
-        fetchPlaces()
     }, [])
+
+    useFocusEffect(() => {
+        fetchPlaces()
+    })
 
     function goToPlacePage(event: LongPressEvent) {
         const coords = event.nativeEvent.coordinate
         navigation.navigate('Place', coords)
+    }
+    function editPlacePage(place: Place) {
+        navigation.navigate('Place', place)
     }
 
     return (
@@ -60,6 +66,7 @@ export default function HomePage() {
                     <Marker
                         key={e.name}
                         title={e.name}
+                        onCalloutPress={() => editPlacePage(e)}
                         coordinate={{ latitude: e.latitude, longitude: e.longitude }}
                     />
                 )) }

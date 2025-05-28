@@ -11,6 +11,10 @@ class PlaceService {
         await AsyncStorage.setItem(PLACE_DOC_KEY, json)
     }
 
+    private equals(p1: Place, p2: Place) {
+        return p1.latitude === p2.latitude && p1.longitude === p2.longitude
+    }
+
     public async getList() {
         const json = await AsyncStorage.getItem(PLACE_DOC_KEY)
         
@@ -22,21 +26,20 @@ class PlaceService {
     public async save(place: Place) {
         const list = await this.getList()
         
-        list.push(place)
+        const saved = list.find(e => this.equals(e, place))
+        if (saved) {
+            saved.name = place.name
+            saved.description = place.description
+        } else {
+            list.push(place)
+        }
         
         this.setList(list)
     }
 
     public async remove(place: Place) {
         let list = await this.getList()
-
-        list = list.filter(e => {
-            if (e.latitude === place.latitude && e.longitude === place.longitude) {
-                return false
-            }
-            return true
-        })
-
+        list = list.filter(e => !this.equals(e, place))
         this.setList(list)
     }
 }
